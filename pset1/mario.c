@@ -16,9 +16,10 @@
 int main(void)
 {
 
-int numRows = 0;
+//put numRows too high so user will be prompted for new value
+int numRows = 100;
 
-while(numRows <= 0 || numRows >= 23)
+while(numRows < 0 || numRows > 23)
 {
     //numRows must be an int between 1 and 23
     printf("Height: ");
@@ -29,7 +30,7 @@ while(numRows <= 0 || numRows >= 23)
 for(int i=1; i<=numRows; i++)
 {
     //this loop tracks horizontal space printing
-    for(int j=1; j<(numRows-i); j++)
+    for(int j=0; j<(numRows-i); j++)
         printf(" ");
     //this loop tracks horizontal block printing
     for(int k=0; k<(i+1); k++)
