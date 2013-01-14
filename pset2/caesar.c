@@ -26,8 +26,11 @@ int main(int argc, string argv[])
     * secret key should be a digit but no error
     * checking for if(key isdigit)
     */
-    /*if(argc != 2)
-        return 1;*/
+    if(argc != 2)
+    {
+        printf("Usage: ./caesar <secret_key>\n");
+        return 1;
+    }
     // set k for the cipher to the cmd line arg 
     int key = atoi(argv[1]);
     string secretMessage = GetString();
