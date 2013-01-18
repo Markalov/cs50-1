@@ -15,52 +15,78 @@
 #include <cs50.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 // fn prototypes
-int rotate(int p, int k);
+int vigenereCipher(int p, int k);
 
 int main(int argc, string argv[])
 {
     /*
     * args should be name of prgm and a secret key 
-    * secret key should be a digit but no error
-    * checking for if(key isdigit)
+    * secret key should be composed of all alpha 
+    * chars
     */
+    // ensure only one cmd line arg
     if(argc != 2)
     {
-        printf("Usage: ./caesar <secret_key>\n");
+        printf("Usage: ./vigenere <alphabetic_secret_key>\n");
         return 1;
     }
-    // set k for the cipher to the cmd line arg 
-    int key = atoi(argv[1]);
-    string secretMessage = GetString();
-    int length = strlen(secretMessage);
-    // cipher each character from 0 to end of string
-    for(int i = 0, n = length; i < n; i++)
+    // set keyword to cmd line arg
+    char* keyWord = argv[1];
+    int keyWordLength = strlen(keyWord);
+    // check that the cmd line arg is alphabetic
+    for(int i = 0; i < keyWordLength; i++)
     {
-       int originalChar = (int)secretMessage[i]; 
-       char currentChar = rotate(originalChar, key); 
-       // rotate secretMessage with casesar cipher
-       printf("%c", currentChar);
+        if(!isalpha(keyWord[i]))
+        {
+            printf("Usage: ./vigenere <alphabetic_secret_key>\n");
+            return 1;
+        }
     }
-    printf("\n");
+    // user inputs a string as the secret message
+    char* secretMessage = GetString();
+    int secretMessageLength = strlen(secretMessage);
+    // apply a cipher if char in secretMessage is alphabetical
+    for(int i = 0, j = i; i < secretMessageLength; i++)
+    {
+        /*
+        * if we've surpassed keyWordLength
+        * reset it's length
+        */
+        if(j == keyWordLength)
+            j = 0;
+        // don't increment b/c no cipher applied if !alphabetical
+        if(!isalpha(secretMessage[i]))
+        {
+            printf("%c", secretMessage[i]);
+        }
+        else
+        {
+            // char is alphabetical, cipher it
+            char cipheredChar = vigenereCipher(secretMessage[i], keyWord[j]);
+            printf("%c", cipheredChar);
+            j++;
+        }
+    }
+    
+    printf("\n"); 
+
 }
 
 /*
-* input: a char a-z or A-Z as an int
-* rotates a char 'p' by 'k' places
+* input: 'p' a char a-z or A-Z as an int
+* 'k' a char a-z or A-Z as an int
+* rotates a char 'p' by 'k' places where [Aa, Zz] = [0, 25]
 */
-int rotate(int p, int k)
+int vigenereCipher(int p, int k)
 {
-    // returns unmanipulated input if !a-z or !A-Z
-    if(p < 65)
-        return p;
-    if(p > 90 && p < 97)
-        return p;
-    if(p > 122)
-        return p;
-    // set secret key 'k' between [0,25]
-    k = k % 26;
+    // reset 'key' char between 0,25; Aa = 0, Zz = 25
+    if(k >= 65 && k <= 90)
+        k -= 65;
+    if(k >= 97 && k <= 122)
+        k -= 97;
     // add key to initial char 'p'
     int sum = p + k;
     // case 1: p[65,90] [A-Z]
