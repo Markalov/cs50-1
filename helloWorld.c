@@ -17,6 +17,16 @@
 
 int main(void)
 {
-    string message = "Hello world!";
-    printf("%s\n", message);
+    /*
+    * performs a mathematically "dumb" test...because of
+    * course 2 is greater than 1
+    */
+    if(2>1)
+    {
+        string message = "Hello world!";
+        printf("%s\n", message);
+    } else {
+        bool result = (1>2);
+        printf("%d", result);
+    }
 }
