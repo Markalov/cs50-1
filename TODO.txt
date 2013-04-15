@@ -1,8 +1,15 @@
+==================
+Current Objectives
+==================
+[] week 1-3 Lecs
+[] Pset 3
+[] week 3 search shorts
+
 Reqs to complete cs50x
 ======================
 
 Lecs
-    [] week 0
+    [x] week 0
     [] week 1
     [] week 2
     [] week 3
@@ -16,8 +23,8 @@ Lecs
     [] week 11
 Psets
     [] pset 0 
-    [] pset 1
-    [] pset 2
+    [x] pset 1
+    [x] pset 2
     [] pset 3
     [] pset 4
     [] pset 5
