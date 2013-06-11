@@ -396,17 +396,10 @@ bool load(string s)
  */
 bool lookup(string s)
 {
-    //TODO
-
     // ensure the user has typed something ok to lookup
     if(s == NULL || strlen(s) < 1)
         return false;
 
-    // lookup word in dictionary array
-    for(int c=0, l=strlen(s); c<l; c++)
-    {
-        
-    }
 }
 
 /**
