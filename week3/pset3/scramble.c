@@ -247,7 +247,22 @@ bool crawl(string letters, int x, int y)
  */
 void draw(void)
 {
-    // TODO
+    // print white-space atop the grid
+    for(int k=0; k<(2*DIMENSION)+2; k++)
+        printf(" ");
+    printf("\n");
+
+    // print the characters to the grid
+    for(int i=0; i<DIMENSION; i++)
+    {
+        printf("  ");
+        for(int j=0; j<DIMENSION; j++)
+        {
+            printf("%c ", grid[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 /**
@@ -324,6 +339,8 @@ void initialize(void)
             // map d onto range of frequencies
             for (int k = 0; k < n; k++)
             {
+                // d becomes a pseudorandom letter, with letters of 
+                // a higher frequency being favored
                 d -= frequencies[k] / 100;
                 if (d < 0.0 || k == n - 1)
                 {
@@ -379,8 +396,17 @@ bool load(string s)
  */
 bool lookup(string s)
 {
-    // TODO
-    return false;
+    //TODO
+
+    // ensure the user has typed something ok to lookup
+    if(s == NULL || strlen(s) < 1)
+        return false;
+
+    // lookup word in dictionary array
+    for(int c=0, l=strlen(s); c<l; c++)
+    {
+        
+    }
 }
 
 /**
