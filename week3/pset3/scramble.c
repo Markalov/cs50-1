@@ -161,10 +161,14 @@ int main(int argc, string argv[])
         // prompt for word
         printf("> ");
         string s = GetString();
-
+        
         // quit playing if user hits ctrl-d
         if (s == NULL)
             break;
+
+        // transform the word to uppercase, regardless of original case
+        for(int c=0, l=strlen(s); c<l; c++)
+            s[c] = toupper(s[c]);
 
         // log word
         fprintf(log, "%s\n", s);
@@ -185,7 +189,7 @@ int main(int argc, string argv[])
     fclose(log);
 
     return 0;
-}
+} // END MAIN
 
 /**
  * Clears screen.
@@ -400,6 +404,33 @@ bool lookup(string s)
     if(s == NULL || strlen(s) < 1)
         return false;
 
+    
+    // lookup the string in the dictionary using the O(n) way
+    for(int i=0; i<dictionary.size; i++)
+    {
+        // assign word length to the bigger word
+        int length = strlen(s);
+
+        // compare the words char by char
+        int charsThatMatch = 0;
+        for(int c=0; c<length; c++)
+        {
+            if(s[c] == dictionary.words[i].letters[c])
+                charsThatMatch++;
+        }
+
+        // make sure the dictionary word is the same length as the user input
+        if(dictionary.words[i].letters[length] == '\0')
+            charsThatMatch++;
+        
+        // make sure the word hasn't already been found and the words match
+        if(charsThatMatch==length+1 && !dictionary.words[i].found)
+        {
+            dictionary.words[i].found = true;
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -408,5 +439,26 @@ bool lookup(string s)
  */
 void scramble(void)
 {
-    // TODO
+    // set a new array, first dimension is column, second is place in column
+    char temp[DIMENSION][DIMENSION];
+    for(int i=0; i<DIMENSION; i++)
+    {
+        for(int j=0; j<DIMENSION; j++)
+        {
+            // map each row in grid to the opposite column in new
+            // i.e. row[0] in grid becomes column[dimension]
+            int newJ = DIMENSION-(i+1);
+            int newI = j;
+            temp[newI][newJ] = grid[i][j];
+        }
+    }
+    
+    // fill the original grid with the new coordinates
+    for(int k=0; k<DIMENSION; k++)
+    {
+        for(int l=0; l<DIMENSION; l++)
+        {
+            grid[k][l] = temp[k][l];
+        }
+    }
 }
