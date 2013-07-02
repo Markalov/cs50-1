@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<sizeof(arr)/sizeof(string); i++)
         printf("%s\n", arr[i]);
     */
-    if(lookup("bar", arr, 7))
+    if(lookup("bark", arr, 7))
         printf("TRUE\n");
 }
 
@@ -22,16 +22,53 @@ int main(int argc, char *argv[])
  */
 bool lookup(string s, string dictionary[], int dSize)
 {
+    // conditional on whether or not word is found
+    bool isFound = false;
+
     // ensure the user has typed something ok to lookup
     if(s == NULL || strlen(s) < 1)
-        return false;
+        return isFound;
 
-    // lookup word in dictionary array using binary search
+    // initially, min is 0 and max is size of dictionary less 1
     int min = 0;
     int max = dSize-1;
-    int midpoint;
+
+    // lookup word in dictionary array using binary search
+    while(max >= min)
+    {
+        int midpoint = (max-min)/2.0;
+        int compare = strcmp(s, dictionary[midpoint]);
+
+        if(compare < 0)
+        {
+            // the string is less than the current midpt
+            max = midpoint - 1;
+        }
+        else if(compare > 0)
+        {
+            // the string is greater than the current midpt
+            min = midpoint + 1;
+        }
+        else
+        {
+            // the string is equal to the current midpt
+            isFound = true;
+            return isFound;
+        }
+    }
+    return isFound;
+}
+
+    /*
+    int min = 0;
+    int max = dSize-1;
+    int midpoint = (max-min)/2.0;
    
     bool wordFound = false;
+
+    bool charFound = false;
+    bool lower = false;
+    bool higher = false;
     while(max >= min)
     {
                 
@@ -73,4 +110,5 @@ bool lookup(string s, string dictionary[], int dSize)
         }
     }
     return wordFound;
-} 
+    */
+

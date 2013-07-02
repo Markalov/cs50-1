@@ -400,11 +400,41 @@ bool load(string s)
  */
 bool lookup(string s)
 {
+    bool isFound = false;
+
     // ensure the user has typed something ok to lookup
     if(s == NULL || strlen(s) < 1)
-        return false;
+        return isFound;
 
+    int min = 0;
+    int max = dictionary.size-1;
 
+    while(max >= min)
+    {
+        int midpoint = min+((max-min)/2.0);
+        int comparison = strcmp(s, dictionary.words[midpoint].letters);
+
+        if(comparison < 0)
+        {
+            // string is less than current midpoint
+            max = midpoint-1;
+        }
+        else if(comparison > 0)
+        {
+            // string is greater than current midpoint
+            min = midpoint+1;
+        }
+        else
+        {
+            // string is equal to current midpoint
+            isFound = true;
+            return isFound;
+        }
+    }
+    return isFound;
+}
+
+/*
     // assign word length to the bigger word
     int length = strlen(s);
 
@@ -446,11 +476,12 @@ bool lookup(string s)
         if(charsThatMatch==length+1 && !dictionary.words[midpoint].found)
         {
             dictionary.words[midpoint].found = true;
-            return true;
+            isFound = true;
         }
      }
-    return false;
+     return isFound;
 }
+*/
 
 /**
  * Scrambles the grid by rotating it 90 degrees clockwise, whereby
