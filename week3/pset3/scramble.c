@@ -412,7 +412,8 @@ bool lookup(string s)
     while(max >= min)
     {
         int midpoint = min+((max-min)/2.0);
-        int comparison = strcmp(s, dictionary.words[midpoint].letters);
+        word dictWord = dictionary.words[midpoint];
+        int comparison = strcmp(s, dictWord.letters);
 
         if(comparison < 0)
         {
@@ -426,62 +427,22 @@ bool lookup(string s)
         }
         else
         {
-            // string is equal to current midpoint
-            isFound = true;
-            return isFound;
+            // make sure the word hasn't yet been found
+            if(!dictWord.found)
+            {
+                // must access var directly do to pointer issue
+                dictionary.words[midpoint].found = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
     return isFound;
 }
 
-/*
-    // assign word length to the bigger word
-    int length = strlen(s);
-
-    // setup for binary search
-    int min = 0;
-    int max = dictionary.size;
-
-    while(max >= min)
-    {
-        // compare the words char by char
-        int charsThatMatch = 0;
-        int difference = length+1;
-
-        int midpoint = (int)((max-min)/2.0);
-    
-        for(int c=0; c<length; c++)
-        {
-            if(s[c] < dictionary.words[midpoint].letters[c] && c < difference)
-            {
-                // word is alphabetically lower
-                max = midpoint-1;
-            }
-            else if(s[c] > dictionary.words[midpoint].letters[c] && c < difference)
-            {
-                // word is alphabetically higher
-                min = midpoint+1;
-            }
-            else
-            {
-                charsThatMatch++;
-            }
-         }
-
-        // make sure the dictionary word is the same length as the user input
-        if(dictionary.words[midpoint].letters[length] == '\0')
-            charsThatMatch++;
-        
-        // make sure the word hasn't already been found and the words match
-        if(charsThatMatch==length+1 && !dictionary.words[midpoint].found)
-        {
-            dictionary.words[midpoint].found = true;
-            isFound = true;
-        }
-     }
-     return isFound;
-}
-*/
 
 /**
  * Scrambles the grid by rotating it 90 degrees clockwise, whereby
