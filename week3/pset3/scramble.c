@@ -404,32 +404,51 @@ bool lookup(string s)
     if(s == NULL || strlen(s) < 1)
         return false;
 
-    
-    // lookup the string in the dictionary using the O(n) way
-    for(int i=0; i<dictionary.size; i++)
-    {
-        // assign word length to the bigger word
-        int length = strlen(s);
 
+    // assign word length to the bigger word
+    int length = strlen(s);
+
+    // setup for binary search
+    int min = 0;
+    int max = dictionary.size;
+
+    while(max >= min)
+    {
         // compare the words char by char
         int charsThatMatch = 0;
+        int difference = length+1;
+
+        int midpoint = (int)((max-min)/2.0);
+    
         for(int c=0; c<length; c++)
         {
-            if(s[c] == dictionary.words[i].letters[c])
+            if(s[c] < dictionary.words[midpoint].letters[c] && c < difference)
+            {
+                // word is alphabetically lower
+                max = midpoint-1;
+            }
+            else if(s[c] > dictionary.words[midpoint].letters[c] && c < difference)
+            {
+                // word is alphabetically higher
+                min = midpoint+1;
+            }
+            else
+            {
                 charsThatMatch++;
-        }
+            }
+         }
 
         // make sure the dictionary word is the same length as the user input
-        if(dictionary.words[i].letters[length] == '\0')
+        if(dictionary.words[midpoint].letters[length] == '\0')
             charsThatMatch++;
         
         // make sure the word hasn't already been found and the words match
-        if(charsThatMatch==length+1 && !dictionary.words[i].found)
+        if(charsThatMatch==length+1 && !dictionary.words[midpoint].found)
         {
-            dictionary.words[i].found = true;
+            dictionary.words[midpoint].found = true;
             return true;
         }
-    }
+     }
     return false;
 }
 
