@@ -8,16 +8,16 @@ GIF - 2^8 per logical screen
 3.  JPG images are lossy compressed.  The images come out smaller than most other formats, but some quality is sacrificed in compression of a JPG.
 4.  When a file is deleted on a FAT file system, the filename's first character is changed to signal that the directory entry can be recycled. The second thing which happens is that all the clusters which comprise the data are moved to a section of "free clusters", or clusters that can be used in the future when space is needed.  The important takeaway being that technically the data isn't erased or corrupted, it's just put into a special spot on the hard disk which notifies the disk that it can use those bytes for other things when it needs more space..  The 0s and 1s which comprise the file are able to be recovered using special software or scripts written for that purpose.
 5.  To ensure, with high probability, that my files are deleted beyond recovery from my hard drive, I could use freely available software to overwrite the bytes previously occupied by my files with either a constant byte (e.g. all zeroes) or a special pattern (e.g. Guttman pattern) designed to prevent recovery by even the most technically able.
-6.  TODO
-7.  TODO
-8.  TODO
-9.  TODO
-10. TODO
-11. TODO
-12. TODO
-13. TODO
-14. TODO
-15. TODO
-16. TODO
-17. TODO
+6.  stdint.h is a library of integer data types and corresponding macros which provide more platform-independent precision than the C standard types.  For example, integers with maximum width, precise width n, minimum width n, or fastest integer implementation can be defined (rather than just int) - where n is in bits.  
+7.  Using one of the specified type aliases ensures that a certain number of bits will be used for integers defined by that type.  These types are more precise than int, because int will use 64 bits (4 bytes) regardless of the number of bits actually needed to represent whatever integer value is being represented.  In this specific application, it is useful to declare a uint8_t, because all R,G,B triplets consist of a known size of 8 bits representing R, 8 bits for G, and 8 bits for B.
+8.  1,4,4,2 (architecture irrelevant)
+9.  BM
+10. bfSize tells the size, in bytes, of the bitmap file; whereas, biSize tells the number of bytes required by the BITMAPINFOHEADER structure.
+11. If biHeight is negative, the bitmap is a top-down dib, whereby the origin is in the upper-left corner (as opposed to the lower-left corner if biHeight is positive).
+12. biBitCount defines the number of bits-per-pixel, and thus also defines the maximum number of colors in the bmp.
+13. fopen, on line 37, may fail and return NULL, because the operating system could not allocate the requested memory to instantiate a file pointer to the file being opened.
+14. In fread, 1 data member, specifically a BITMAPINFOHEADER and BITMAPFILEHEADER, is the most that's ever read by fread.  Thus, the third argument (a count of the data members to be read) is 1.
+15. 3
+16. It moves the cursor by an integer, offset, from the current position of the file pointer, in this case from SEEK_CUR.
+17. SEEK_CUR is an integer.  More specifically, it is an integer which specifies the current file position so that the offset added by the offset variable in fseek is added to the current file position.
 18. TODO
