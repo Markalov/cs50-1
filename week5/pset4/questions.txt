@@ -20,4 +20,4 @@ GIF - 2^8 per logical screen
 15. 3
 16. It moves the cursor by an integer, offset, from the current position of the file pointer, in this case from SEEK_CUR.
 17. SEEK_CUR is an integer.  More specifically, it is an integer which specifies the current file position so that the offset added by the offset variable in fseek is added to the current file position.
-18. TODO
+18. Fozzy Bear 
