@@ -43,6 +43,9 @@ int main(void)
     // file signature of the section of (512) bytes
     SIGNATURE sectionSig;
 
+    // the current jpg file we'll write jpg data to
+    FILE* jpgFile;
+
     // 508 bytes which won't (likely) be a signature
     char buffer[508];
 
@@ -56,7 +59,6 @@ int main(void)
     while(fread(&sectionSig, sizeof(SIGNATURE), 1, memcard) > 0)
     {
         char* jpgName = malloc(sizeof(char) * 8);
-        FILE* jpgFile;
 
         // read the rest of the section of 512 bytes into the buffer
         // no matter what
@@ -68,6 +70,10 @@ int main(void)
             sectionSig.three == 0xe1))
         {
             foundJpg = true;
+            
+            // close the file, if we were writing to one previously
+            if(jpgCount != 0)
+                fclose(jpgFile);
 
             // try to open a jpg file named ###.jpg
             sprintf(jpgName, "%03d.jpg", jpgCount++);
@@ -83,18 +89,13 @@ int main(void)
             fwrite(&sectionSig, sizeof(SIGNATURE), 1, jpgFile);
             // write the next 508 bytes of the section
             fwrite(&buffer, 508, 1, jpgFile);
-
-            // close the file
-            fclose(jpgFile);
         }
-        // have we already found a jpg?
-        else if(foundJpg)
+        // have we already found a jpg? are we at the end of the photos?
+        else if(foundJpg && jpgCount <= 51)
         {
             // recreate name of the jpg file
             sprintf(jpgName, "%03d.jpg", jpgCount);
 
-            // open the current jpg file for appending
-            jpgFile = fopen(jpgName, "a");
             if(jpgFile == NULL)
             {
                 fclose(jpgFile);
@@ -105,15 +106,13 @@ int main(void)
             // write all 512 bytes to the file under jpgName
             fwrite(&sectionSig, sizeof(SIGNATURE), 1, jpgFile);
             fwrite(&buffer, 508, 1, jpgFile);
-
-            // close the file
-            fclose(jpgFile);
-
         }
 
         // free mem for jpgName string
         free(jpgName);
     }
+    // ensure the last jpg is closed
+    fclose(jpgFile);
 
     // close the mem card file
     fclose(memcard);
