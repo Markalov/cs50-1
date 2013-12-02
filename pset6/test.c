@@ -4,11 +4,11 @@ struct student;
 
 void printstuff(struct student* s);
 
-struct student
+typedef struct student
 {
     int age;
     char* name;
-};
+} student;
 
 int main(void)
 {
@@ -16,7 +16,7 @@ int main(void)
     s1.age = 3;
     s1.name = "Keaton";
 
-    struct student s2 = {6, "Weston"};
+    student s2 = {6, "Weston"};
 
     printstuff(&s1);
     printstuff(&s2);
