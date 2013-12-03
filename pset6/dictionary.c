@@ -17,6 +17,8 @@
 
 #define ALPHABET_SIZE 27
 
+int get_rel_alphaindex(const char alpha);
+
 typedef struct node
 {
     bool is_word;
@@ -24,14 +26,46 @@ typedef struct node
 }
 node;
 
+// declare global vars
 node* root;
+unsigned int dict_size;
 
 /**
  * Returns true if word is in dictionary else false.
  */
 bool check(const char* word)
 {
-    // TODO
+    // check if the root has been initialized
+    if(root == NULL)
+    {
+        return false;
+    }
+    
+    node* walker = root;
+
+    for(int i = 0, l = strlen(word); i < l; i++)
+    {
+        // get the alphabet index of the current character of word
+        int alphaindex = get_rel_alphaindex(*(word + i));
+
+        // check if the word is in the trie and marked as word
+        if(i == l-1 && walker->is_word)
+        {
+            return true;
+        }
+        // check if the substring is not in the trie
+        else if(walker->children[alphaindex] == NULL)
+        {
+            return false;
+        }
+        // we must need to keep walking
+        else
+        {
+            walker = walker->children[alphaindex];
+        }
+    }
+
+    // protect against the impossible
     return false;
 }
 
@@ -58,8 +92,9 @@ bool load(const char* dictionary)
     // iterate the entire dictionary file
     for(int c = fgetc(fp); c != EOF; c = fgetc(fp))
     {
-        // prepare an iterating node 
+        // prepare an iterating node
         node* walker = root;
+        node* old_walker;
 
         // iterate each character in line
         int l = c;
@@ -72,7 +107,7 @@ bool load(const char* dictionary)
             }
             else
             {
-                letter = tolower(l) - 'a';
+                letter = get_rel_alphaindex(l);
             }
 
             // allocate space for a child node if needed
@@ -83,7 +118,6 @@ bool load(const char* dictionary)
                 // ensure that memory was allocated
                 if(walker->children[letter] == NULL)
                 {
-                    printf("Seemed to run out of memory loading %s\n", dictionary);
                     return false;
                 }
                 
@@ -92,10 +126,14 @@ bool load(const char* dictionary)
                 
             }
             // assign walker to the next node and move to next character
+            old_walker = walker;
             walker = walker->children[letter];
             l = fgetc(fp);
         }
-        walker->is_word = true;
+        
+        // mark that a word has been entered and increment size
+        old_walker->is_word = true;
+        dict_size++;
     }
     return true;
 }
@@ -105,8 +143,27 @@ bool load(const char* dictionary)
  */
 unsigned int size(void)
 {
-    // TODO
-    return 0;
+    return dict_size;
+}
+
+/**
+* frees the tree of nodes starting at index in the root node
+* and traversing down the entire trie at each index
+*/
+node* free_nodes(node* nodei)
+{
+    if(nodei->children != NULL)
+    {
+        for(int i = 0; i < ALPHABET_SIZE; i++)
+        {
+            free(free_nodes(nodei->children[i]));
+        }
+    }
+    else
+    {
+        return nodei;
+    }
+    return NULL;
 }
 
 /**
@@ -114,6 +171,16 @@ unsigned int size(void)
  */
 bool unload(void)
 {
-    // TODO
-    return false;
+    bool unloaded = free_nodes(root);
+    free(root);
+    return unloaded;
+}
+
+/**
+* Gets a letter's position in alphabet relative to lowercase 'a' being index 0,
+* 'z' being index 25, and "'" (apostrophe) being index 26.
+*/ 
+int get_rel_alphaindex(const char alpha)
+{
+    return tolower(alpha) - 'a';
 }
