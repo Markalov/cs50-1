@@ -147,23 +147,21 @@ unsigned int size(void)
 }
 
 /**
-* frees the tree of nodes starting at index in the root node
-* and traversing down the entire trie at each index
+* frees the tree of nodes, recursively, starting at index in the root node
 */
-node* free_nodes(node* nodei)
+bool free_child(node* node)
 {
-    if(nodei->children != NULL)
+    for(int i = 0; i < ALPHABET_SIZE; i++)
     {
-        for(int i = 0; i < ALPHABET_SIZE; i++)
-        {
-            free(free_nodes(nodei->children[i]));
-        }
+        // iterative case
+        if(node->children[i] != NULL)
+            free_child(node->children[i]);
     }
-    else
-    {
-        return nodei;
-    }
-    return NULL;
+    // base case
+    free(node);
+
+    // if we made it here, all is good
+    return true;
 }
 
 /**
@@ -171,9 +169,7 @@ node* free_nodes(node* nodei)
  */
 bool unload(void)
 {
-    bool unloaded = free_nodes(root);
-    free(root);
-    return unloaded;
+    return free_child(root);
 }
 
 /**
