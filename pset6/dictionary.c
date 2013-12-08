@@ -17,7 +17,7 @@
 
 #define ALPHABET_SIZE 27
 
-int get_rel_alphaindex(const char alpha);
+// int get_rel_alphaindex(const char alpha);
 
 typedef struct node
 {
@@ -46,7 +46,8 @@ bool check(const char* word)
     for(int i = 0, l = strlen(word); i < l; i++)
     {
         // get the alphabet index of the current character of word
-        int alphaindex = get_rel_alphaindex(*(word + i));
+        // int alphaindex = get_rel_alphaindex(*(word + i));
+        int alphaindex = *(word + i) == ('\'') ? 26 : tolower(*(word + i)) - 'a';
 
         // check if the substring is not in the trie
         if(walker->children[alphaindex] == NULL)
@@ -70,7 +71,9 @@ bool check(const char* word)
 bool load(const char* dictionary)
 {
     // initialize root node
-    root = (node*) calloc(1, sizeof( node ));
+    // root = (node*) calloc(1, sizeof( node ));
+    root = (node*) malloc(sizeof( node ));
+
     if(root != NULL)
     {
         root->is_word = false;
@@ -92,13 +95,15 @@ bool load(const char* dictionary)
         // iterate each character in line
         while(c != (int)'\n')
         {
-            int letter = get_rel_alphaindex(c);
+            // int letter = get_rel_alphaindex(c);
+            int letter = c == '\'' ? 26 : tolower(c) - 'a';
 
             // allocate space for a child node if needed
             if(walker->children[letter] == NULL)
             {
-                walker->children[letter] = (node*) calloc(1, sizeof(node));
-
+                // walker->children[letter] = (node*) calloc(1, sizeof(node));
+                walker->children[letter] = (node*) malloc(sizeof(node));
+                
                 // ensure that memory was allocated
                 if(walker->children[letter] == NULL)
                 {
@@ -158,7 +163,6 @@ bool unload(void)
 /**
 * Gets a letter's position in alphabet relative to lowercase 'a' being index 0,
 * 'z' being index 25, and "'" (apostrophe) being index 26.
-*/ 
 int get_rel_alphaindex(const char alpha)
 {
     if(alpha == '\'')
@@ -166,3 +170,4 @@ int get_rel_alphaindex(const char alpha)
     else    
         return tolower(alpha) - 'a';
 }
+*/
