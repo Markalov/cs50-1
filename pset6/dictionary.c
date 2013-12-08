@@ -48,25 +48,20 @@ bool check(const char* word)
         // get the alphabet index of the current character of word
         int alphaindex = get_rel_alphaindex(*(word + i));
 
-        // check if the word is in the trie and marked as word
-        if(i == l-1 && walker->is_word)
-        {
-            return true;
-        }
         // check if the substring is not in the trie
-        else if(walker->children[alphaindex] == NULL)
+        if(walker->children[alphaindex] == NULL)
         {
             return false;
         }
-        // we must need to keep walking
+        // we must need to keep walking while not at end of word
         else
         {
             walker = walker->children[alphaindex];
         }
     }
 
-    // protect against the impossible
-    return false;
+    // if we've made it here, we may have correct word!
+    return walker->is_word;
 }
 
 /**
@@ -75,7 +70,7 @@ bool check(const char* word)
 bool load(const char* dictionary)
 {
     // initialize root node
-    root = (node*) malloc(sizeof( node ));
+    root = (node*) calloc(1, sizeof( node ));
     if(root != NULL)
     {
         root->is_word = false;
@@ -85,7 +80,6 @@ bool load(const char* dictionary)
     FILE* fp = fopen(dictionary, "r");
     if(fp == NULL)
     {
-        printf("Could not load %s\n", dictionary);
         return false;
     }
 
@@ -94,26 +88,16 @@ bool load(const char* dictionary)
     {
         // prepare an iterating node
         node* walker = root;
-        node* old_walker;
 
         // iterate each character in line
-        int l = c;
-        while(l != (int)'\n')
+        while(c != (int)'\n')
         {
-            int letter;
-            if(l == '\'')
-            {
-                letter = 26;
-            }
-            else
-            {
-                letter = get_rel_alphaindex(l);
-            }
+            int letter = get_rel_alphaindex(c);
 
             // allocate space for a child node if needed
             if(walker->children[letter] == NULL)
             {
-                walker->children[letter] = (node*) malloc(sizeof(node));
+                walker->children[letter] = (node*) calloc(1, sizeof(node));
 
                 // ensure that memory was allocated
                 if(walker->children[letter] == NULL)
@@ -122,19 +106,18 @@ bool load(const char* dictionary)
                 }
                 
                 walker->children[letter]->is_word = false;
-
-                
             }
             // assign walker to the next node and move to next character
-            old_walker = walker;
             walker = walker->children[letter];
-            l = fgetc(fp);
+            c = fgetc(fp);
         }
-        
         // mark that a word has been entered and increment size
-        old_walker->is_word = true;
+        walker->is_word = true;
         dict_size++;
     }
+
+    fclose(fp);
+
     return true;
 }
 
@@ -178,5 +161,8 @@ bool unload(void)
 */ 
 int get_rel_alphaindex(const char alpha)
 {
-    return tolower(alpha) - 'a';
+    if(alpha == '\'')
+        return 26;
+    else    
+        return tolower(alpha) - 'a';
 }
