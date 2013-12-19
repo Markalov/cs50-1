@@ -36,51 +36,51 @@ node* build_node(int value)
     return node;
 }
 
-bool insert(int value, node* tree)
-{
-    if(tree != NULL)
-    {
-        if(value == tree->value)
+        bool insert(int value, node* tree)
         {
-            return false;
-        }
-        else if(value < tree->value)
-        {
-            if(tree->left == NULL)
+            if(tree != NULL)
             {
-                node* tmp = build_node(value);
-                if(tmp != NULL)
+                if(value == tree->value)
                 {
-                    tree->left = tmp;
-                    return true;
+                    return false;
                 }
-                return false;
-            }
-            else
-            {
-                return insert(value, tree->left);
-            }
-        }
-        else
-        {
-            if(tree->right == NULL)
-            {
-                node* tmp = build_node(value);
-                if(tmp != NULL)
+                else if(value < tree->value)
                 {
-                    tree->right = tmp;
-                    return true;
+                    if(tree->left == NULL)
+                    {
+                        node* tmp = build_node(value);
+                        if(tmp != NULL)
+                        {
+                            tree->left = tmp;
+                            return true;
+                        }
+                        return false;
+                    }
+                    else
+                    {
+                        return insert(value, tree->left);
+                    }
                 }
-                return false;
+                else
+                {
+                    if(tree->right == NULL)
+                    {
+                        node* tmp = build_node(value);
+                        if(tmp != NULL)
+                        {
+                            tree->right = tmp;
+                            return true;
+                        }
+                        return false;
+                    }
+                    else
+                    {
+                        return insert(value, tree->right);
+                    }
+                }
             }
-            else
-            {
-                return insert(value, tree->right);
-            }
+            return false; // if the tree is null
         }
-    }
-    return false; // if the tree is null
-}
 
 bool contains(int value, node* tree)
 {

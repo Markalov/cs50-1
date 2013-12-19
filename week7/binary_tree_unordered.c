@@ -10,20 +10,11 @@ typedef struct node
 }
 node;
 
-/*
-bool contains(int value, node* tree)
+struct list
 {
-    if(tree == NULL)
-        return false;
-
-    if(value < tree->value)
-        return contains(value, tree->left);
-    else if(value > tree->value)
-        return contains(value, tree->right);
-    else
-        return true;
-}
-*/
+    node* n;
+    struct list* next;
+};
 
 node* build_node(int value)
 {
@@ -51,17 +42,47 @@ bool insert(int value, node** tree)
         ? &(*tree)->left : &(*tree)->right);
 }
 
-bool contains(int value, node** tree)
+/*
+bool contains(int value, node* tree)
 {
-    /*
-    return tree != NULL && (value == tree->value ||
-        (value < tree->value ? contains(value, tree->left) :
-        contains(value, tree->right)));
-    */
-    return tree != NULL && *tree != NULL && 
-        (value == (*tree)->value || (value < (*tree)->value ?
-        contains(value, &(*tree)->left) : 
-        contains(value, &(*tree)->right)));
+    if(tree == NULL)
+        return false;
+    if(tree->value == value)
+        return true;
+    return contains(value, tree->left) || 
+        contains(value, tree->right);
+}
+*/
+
+bool contains(int value, node* tree)
+{
+    node* cur;
+    struct list* list = malloc(sizeof(list));
+    list->n = tree;
+    list->next = NULL;
+
+    while(list != NULL)
+    {
+        cur = list->n;
+        list = list->next;
+        if(cur->value == value)
+            return true;
+        if(cur->right != NULL)
+        {
+            struct list* new_list = malloc(sizeof(list));
+            new_list->n = cur->right;
+            new_list->next = list;
+            list = new_list;
+        }
+        if(cur->left != NULL)
+        {
+            struct list* new_list = malloc(sizeof(list));
+            new_list->n = cur->left;
+            new_list->next = list;
+            list = new_list;
+        }
+    }
+    return false;
 }
 
 int main(void)
@@ -99,7 +120,7 @@ int main(void)
 
     // prints if tree contains 6
     for(int i=0; i<10; i++)
-        printf("Tree contains %d? %d\n", i, contains(i, &root));
+        printf("Tree contains %d? %d\n", i, contains(i, root));
 
     free(node9);
     free(node7);
