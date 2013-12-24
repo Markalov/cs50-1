@@ -23,6 +23,67 @@
 // number of columns to use
 #define COLS 8
 
+// prototypes 
+bool add_node(Tree* node, Tree** huff_tree);
+
+/**
+* builds a huffman tree out of a "forest", 
+* defined in forest.h, passed in as an 
+* argument
+*/
+void build_huff_tree(Forest* f, Tree** huff_tree)
+{
+    // return early if parameters won't work
+    if(f == NULL || *huff_tree == NULL)
+        return;
+
+    Tree* cur = pick(f);
+    // if we run out of forest, we're done
+    if(cur == NULL)
+        return;
+
+    add_node(cur, huff_tree);
+    build_huff_tree(f, huff_tree);
+}
+
+/**
+* adds node to the huff_tree in the next
+* logical open spot
+*/
+bool add_node(Tree* node, Tree** huff_tree)
+{
+    // return early if no add node or huff_tree exists
+    if(*huff_tree == NULL || node == NULL)
+        return false;
+
+    if((*huff_tree)->left == NULL)
+    {
+        (*huff_tree)->left = node;
+        (*huff_tree)->frequency += node->frequency;
+    }
+    else if((*huff_tree)->right == NULL)
+    {
+        (*huff_tree)->right = node;
+        (*huff_tree)->frequency += node->frequency;
+    }
+    /*
+    * this is the last case, b/c we know nodes
+    * will be ordered as we pick them (least to 
+    * most), so we put the new node to the right
+    * and the only subtree to the left
+    */
+    else
+    {
+        Tree* tmp = mktree();
+        tmp->left = *huff_tree;
+        tmp->frequency += (*huff_tree)->frequency;
+        tmp->right = node;
+        tmp->frequency += node->frequency;
+        huff_tree = &tmp;
+    }
+    return true;
+}
+
 int main(int argc, char* argv[])
 {
     // ensure proper usage
@@ -91,6 +152,26 @@ int main(int argc, char* argv[])
     }
     printf("\n");
     */
+
+    // build a forest of non-zero-frequency symbols
+    Forest* forest = mkforest();
+    for(int i=0; i < SYMBOLS; i++)
+    {
+        if(header.frequencies[i] > 0)
+        {
+            Tree* tree = mktree();
+            tree->symbol = i;
+            tree->frequency = header.frequencies[i];
+            plant(forest, tree);
+        }
+    }
+
+    // build ze huff tree out of the forest
+    Tree* huff_tree = mktree();
+    build_huff_tree(forest, &huff_tree);
+
+    // TODO uncomment the below 
+    // rmforest(forest);
 
     // dump bits contiguously
     int bit;
