@@ -24,17 +24,17 @@
 #define COLS 8
 
 // prototypes 
-bool add_node(Tree* node, Tree** huff_tree);
+bool add_node(Tree* node, Tree* huff_tree);
 
 /**
 * builds a huffman tree out of a "forest", 
 * defined in forest.h, passed in as an 
 * argument
 */
-void build_huff_tree(Forest* f, Tree** huff_tree)
+void build_huff_tree(Forest* f, Tree* huff_tree)
 {
     // return early if parameters won't work
-    if(f == NULL || *huff_tree == NULL)
+    if(f == NULL || huff_tree == NULL)
         return;
 
     Tree* cur = pick(f);
@@ -50,21 +50,21 @@ void build_huff_tree(Forest* f, Tree** huff_tree)
 * adds node to the huff_tree in the next
 * logical open spot
 */
-bool add_node(Tree* node, Tree** huff_tree)
+bool add_node(Tree* node, Tree* huff_tree)
 {
     // return early if no add node or huff_tree exists
-    if(*huff_tree == NULL || node == NULL)
+    if(huff_tree == NULL || node == NULL)
         return false;
 
-    if((*huff_tree)->left == NULL)
+    if(huff_tree->left == NULL)
     {
-        (*huff_tree)->left = node;
-        (*huff_tree)->frequency += node->frequency;
+        huff_tree->left = node;
+        huff_tree->frequency += node->frequency;
     }
-    else if((*huff_tree)->right == NULL)
+    else if(huff_tree->right == NULL)
     {
-        (*huff_tree)->right = node;
-        (*huff_tree)->frequency += node->frequency;
+        huff_tree->right = node;
+        huff_tree->frequency += node->frequency;
     }
     /*
     * this is the last case, b/c we know nodes
@@ -75,11 +75,15 @@ bool add_node(Tree* node, Tree** huff_tree)
     else
     {
         Tree* tmp = mktree();
-        tmp->left = *huff_tree;
-        tmp->frequency += (*huff_tree)->frequency;
+        tmp->left = huff_tree;
+        tmp->frequency += huff_tree->frequency;
         tmp->right = node;
         tmp->frequency += node->frequency;
-        huff_tree = &tmp;
+        *huff_tree = *tmp;
+        // this last line fails b/c the actual mem
+        // of huff_tree becomes tmp, which is also
+        // the left child of tmp, so we have a recursive
+        // or cyclical definition...TODO fix...
     }
     return true;
 }
@@ -168,7 +172,7 @@ int main(int argc, char* argv[])
 
     // build ze huff tree out of the forest
     Tree* huff_tree = mktree();
-    build_huff_tree(forest, &huff_tree);
+    build_huff_tree(forest, huff_tree);
 
     // TODO uncomment the below 
     // rmforest(forest);
