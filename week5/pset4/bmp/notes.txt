@@ -1,0 +1,7 @@
+resize, by n, an infile.bmp to outfile.bmp
+
+[x] n less than equal to 100
+[] what does it mean to resize a bmp file?
+    change file size, image size, width, height
+[] which fields of BFH and BIH will need be modified?
+[] padding added or subtracted to scanlines?

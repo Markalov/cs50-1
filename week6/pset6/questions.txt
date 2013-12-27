@@ -1,0 +1,17 @@
+0.  The maximum length of a word, as defined in dictionary.h
+1.  Returns a bunch of information about all the resources used
+by the calling process, or a sum of the resources used by all 
+threads derived from the calling process.
+2.  16
+3.  Passing in pointers saves memory, because the data contained within the structs needn't be copied into local memory.
+4.  In order to read words, main loads the selected dictionary into memory, via the load function.  Main then opens the text file to be spell checked via fopen.  The for loop iterates from the first character, per fgetc(fp), to the end of file, per EOF, with the filepointer fp being advanced in the stream by one character after each iteration.  In the first if-statement of the for-loop, the current character is added to the word, the index incremented, so long as the LENGTH for a word hasn't been exceeded, else the word is "eaten up" by a while loop which throws away the remaining characters.  
+
+The second conditional else-if handles words containing numbers by throwing away any remaining characters in them.
+
+The final conditinoal else if ensures the index is > 0 (we're not encountering another space) and thus shows we've reached the end of a word.  The counter of number of total words is updated, the word terminated with a null char, the words spelling is checked via check(char* word).  If the word is mispelled, that is shown to the console, and total misspellings are updated.  Finally, index is set to 0 to initialize a new word.
+5.  Using fgetc is more efficient, because in this way, we can automatically stop reading in a word when we know it is no longer valid due to our rules on what constitutes a word.  For example, if a word has non-alpha, non-apostrophe characters or has length > 45, we stop reading.  With fscanf, a user could input a huge (one-string) text file as the file to be spell checked with the program spending lots of time trying to load that into memory.
+6.  This would ensure that the values passed in by pointer are not altered inside the function, but their values can be used.
+7.  The data structure I used to implement my dictionary was a trie.  The trie was composed of a root node, and many child nodes.  Each node had a "children" array of up to 27 child nodes, and an "is_word" attribute which could be set to true or false, based upon whether or not a word was held there.
+8.  Qualitatively speaking, my code wasn't very slow when I first got my solution working, but it also wasn't very fast.  My solution ran a bit slower than that of the staff (~20% slower). 
+9.  I introduced a call to calloc in order to reduce valgrind errors to zero.  In so doing, my solution runs ever-so-slower, because the memory for each node must now be touched (and initialized to zero) in load().
+10. I feel like there may be a better way to implement load (e.g. not call calloc or initialize values elsewhere), but I couldn't find a way to do it within a reasonable time period.

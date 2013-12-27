@@ -1,0 +1,36 @@
+/*
+* 
+* below are some git hints
+* the commands can be easy to forget!
+* convert this to a file on the web someday!
+*
+* line with a '$' indicates a git command follows
+* line with a tab and text explains command above
+*
+*/
+
+
+$ git status
+	show me if any files have changed
+$ git add .
+	add files in the current directory to be committed
+$ git add -u
+    the 'u' flag adds all updates you've made to your code (e.g. removed files)
+$ git commit -m "why i'm committing goes here"
+	commit files with the message in quotes
+$ git remote add origin {{url_to_remote_repo}} 
+	add remote repo (like github or bitbucket) in which to push your code //this only needs to be done once!
+$ git push origin master
+	push code to remote repo
+$ git branch
+	display branches available
+$ git checkout {{branch_name}}
+	switch branch to 'branch_name' 
+$ git merge {{branch_name}}
+	merge changes from one branch into another branch //lookout for conflicts! if(conflict) edit conflicting file(s) to resolve conflict
+$ git branch -d {{branch_name}}
+	delete branch 'branch_name'
+$ git clone {{repo_url}}
+    copies the code from a code repo into working directory //arguably not the best if you're *working* on the code
+$ git pull {{repo_url}}
+    copies code from repo into working directory and merges changes with your current files //good if you've worked on the code before 

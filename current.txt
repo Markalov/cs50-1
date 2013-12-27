@@ -1,0 +1,3 @@
+working on pset3 prereqs:
+* watching sorting shorts
+* finished bubble sort
