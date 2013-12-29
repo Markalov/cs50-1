@@ -32,19 +32,22 @@ bool add_node(Tree* node, Tree* huff_tree);
 * defined in forest.h, passed in as an 
 * argument
 */
-void build_huff_tree(Forest* f, Tree* huff_tree)
+bool build_huff_tree(Forest* f, Tree* huff_tree)
 {
     // return early if parameters won't work
     if(f == NULL || huff_tree == NULL)
-        return;
+        return false;
 
     Tree* cur = pick(f);
     // if we run out of forest, we're done
     if(cur == NULL)
-        return;
+        return true;
 
-    add_node(cur, huff_tree);
-    build_huff_tree(f, huff_tree);
+    bool added = add_node(cur, huff_tree);
+    if(!added)
+        return false;
+
+    return build_huff_tree(f, huff_tree);
 }
 
 /**
@@ -76,6 +79,8 @@ bool add_node(Tree* node, Tree* huff_tree)
     else
     {
         Tree* tmp = mktree();
+        if(tmp == NULL)
+            return false;
         memcpy(tmp, huff_tree, sizeof(Tree));
 
         // reset all values of huff_tree to zero
@@ -162,7 +167,14 @@ int main(int argc, char* argv[])
 
     // build ze huff tree out of the forest
     Tree* huff_tree = mktree();
-    build_huff_tree(forest, huff_tree);
+    if(build_huff_tree(forest, huff_tree) == false)
+    {
+        printf("Memory error\n");
+        rmtree(huff_tree);
+        rmforest(forest);
+        return 1;
+    }
+
     printf("symbol: %c\n"
         "frequency: %d\n"
         "left: %p\n"
