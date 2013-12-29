@@ -88,10 +88,6 @@ bool add_node(Tree* node, Tree* huff_tree)
         huff_tree->frequency += tmp->frequency;
         huff_tree->right = node;
         huff_tree->frequency += node->frequency;
-        // this last line fails b/c the actual mem
-        // of huff_tree becomes tmp, which is also
-        // the left child of tmp, so we have a recursive
-        // or cyclical definition...TODO fix...
     }
     return true;
 }
@@ -110,6 +106,14 @@ int main(int argc, char* argv[])
     if (input == NULL)
     {
         printf("Could not open %s for reading.\n", argv[1]);
+        return 1;
+    }
+
+    // open output
+    FILE* output = fopen(argv[2], "w");
+    if(output == NULL)
+    {
+        printf("Could not open %s for writing.\n", argv[2]);
         return 1;
     }
 
@@ -143,28 +147,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    /*
-    // determine number of rows to use
-    const int rows = (int) ceil((LAST - FIRST) / (double) COLS);
-
-    // dump frequencies in a nice table
-    printf("\n");
-    for (int row = 0; row < rows; row++)
-    {
-        for (int col = 0; col < COLS; col++)
-        {
-            int index = FIRST + row + rows * col;
-            if (index > LAST)
-            {
-                break;
-            }
-            printf("%c %-6d  ", index, header.frequencies[index]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-    */
-
     // build a forest of non-zero-frequency symbols
     Forest* forest = mkforest();
     for(int i=0; i < SYMBOLS; i++)
@@ -190,19 +172,44 @@ int main(int argc, char* argv[])
         huff_tree->left,
         huff_tree->right);
 
-    rmtree(huff_tree);
-    rmforest(forest);
-
-    // dump bits contiguously
+    // count the total # of bits in the file, minus the header
+    Tree* walker = huff_tree;
     int bit;
     while ((bit = bread(input)) != EOF)
     {
-        printf("%d", bit);
+        // we've found a letter
+        if(walker->left == NULL && walker->right == NULL)
+        {
+            // print found character
+            int printed = fprintf(output, "%c", walker->symbol);
+            
+            // end early if we couldn't print 1 character to file
+            if(printed != 1)
+            {
+                printf("Unable to write to %s\n", argv[2]);
+                rmtree(walker);
+                rmtree(huff_tree);
+                rmforest(forest);
+                return 1;
+            }
+
+            // reset the walker tree to root of huff tree
+            walker = huff_tree;
+        }
+
+        if(bit == 0)
+            walker = walker->left;
+        else 
+            walker = walker->right;
     }
     printf("\n\n");
 
-    // close input
+    rmtree(huff_tree);
+    rmforest(forest);
+
+    // close input and output files
     hfclose(input);
+    fclose(output);
 
     // that's all folks!
     return 0;

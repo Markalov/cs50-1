@@ -40,4 +40,4 @@ $(PUFF): $(PUFF_OBJS) $(HDRS)
 # housekeeping
 clean:
 	@echo Cleaning things up...boss
-	rm -f core $(DUMP) $(PUFF) *.o
+	rm -f core $(DUMP) $(PUFF) *.o f
