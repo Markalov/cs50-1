@@ -25,76 +25,57 @@
 #define COLS 8
 
 // prototypes 
-bool add_node(Tree* node, Tree* huff_tree);
+// bool add_node(Tree* node, Tree* huff_tree);
+
+/**
+* prints a charcter to a specified file
+*/
+bool fprintchar(FILE* fp, char c)
+{
+    // print found character
+    int printed = fprintf(fp, "%c", c);
+    
+    // return false if likely the character wasn't printed 
+    return printed == 1;
+}
 
 /**
 * builds a huffman tree out of a "forest", 
 * defined in forest.h, passed in as an 
 * argument
 */
-bool build_huff_tree(Forest* f, Tree* huff_tree)
+bool build_huff_tree(Forest** f)
 {
     // return early if parameters won't work
-    if(f == NULL || huff_tree == NULL)
+    if(f == NULL || *f == NULL)
         return false;
 
-    Tree* cur = pick(f);
+    Tree* first = pick(*f);
+    Tree* second = pick(*f);
+    
+    // there should always be at least 1 tree in the forest
+    if(first == NULL)
+        return false;
+
     // if we run out of forest, we're done
-    if(cur == NULL)
+    if(second == NULL)
+    {
+        plant(*f, first);
         return true;
+    }
 
-    bool added = add_node(cur, huff_tree);
-    if(!added)
+    // else the first tree (lowest weight) becomes the
+    // left child, second tree becomes right child
+    Tree* joiner = mktree();
+    if(joiner == NULL)
         return false;
-
-    return build_huff_tree(f, huff_tree);
-}
-
-/**
-* adds node to the huff_tree in the next
-* logical open spot
-*/
-bool add_node(Tree* node, Tree* huff_tree)
-{
-    // return early if no add node or huff_tree exists
-    if(huff_tree == NULL || node == NULL)
-        return false;
-
-    if(huff_tree->left == NULL)
-    {
-        huff_tree->left = node;
-        huff_tree->frequency += node->frequency;
-    }
-    else if(huff_tree->right == NULL)
-    {
-        huff_tree->right = node;
-        huff_tree->frequency += node->frequency;
-    }
-    /*
-    * this is the last case, b/c we know nodes
-    * will be ordered as we pick them (least to 
-    * most), so we put the new node to the right
-    * and the only subtree to the left
-    */
-    else
-    {
-        Tree* tmp = mktree();
-        if(tmp == NULL)
-            return false;
-        memcpy(tmp, huff_tree, sizeof(Tree));
-
-        // reset all values of huff_tree to zero
-        huff_tree->symbol = 0;
-        huff_tree->frequency = 0;
-        huff_tree->left = NULL;
-        huff_tree->right = NULL;
-
-        huff_tree->left = tmp;
-        huff_tree->frequency += tmp->frequency;
-        huff_tree->right = node;
-        huff_tree->frequency += node->frequency;
-    }
-    return true;
+    joiner->left = first;
+    joiner->right = second;
+    joiner->frequency += (first->frequency + second->frequency);
+    if(!plant(*f, joiner)) 
+        return false;  
+    
+    return build_huff_tree(f);
 }
 
 int main(int argc, char* argv[])
@@ -139,23 +120,13 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // check checksum
+    // check checksum and build forest
     int checksum = header.checksum;
+    Forest* forest = mkforest();
     for (int i = 0; i < SYMBOLS; i++)
     {
         checksum -= header.frequencies[i];
-    }
-    if (checksum != 0)
-    {
-        hfclose(input);
-        printf("File was not huffed.\n");
-        return 1;
-    }
 
-    // build a forest of non-zero-frequency symbols
-    Forest* forest = mkforest();
-    for(int i=0; i < SYMBOLS; i++)
-    {
         if(header.frequencies[i] > 0)
         {
             Tree* tree = mktree();
@@ -164,42 +135,42 @@ int main(int argc, char* argv[])
             plant(forest, tree);
         }
     }
-
-    // build ze huff tree out of the forest
-    Tree* huff_tree = mktree();
-    if(build_huff_tree(forest, huff_tree) == false)
+    if (checksum != 0)
     {
-        printf("Memory error\n");
-        rmtree(huff_tree);
+        hfclose(input);
+        printf("File was not huffed.\n");
         rmforest(forest);
         return 1;
     }
 
-    printf("symbol: %c\n"
-        "frequency: %d\n"
-        "left: %p\n"
-        "right: %p\n",
-        huff_tree->symbol,
-        huff_tree->frequency,
-        huff_tree->left,
-        huff_tree->right);
+    // build ze huff tree out of the forest
+    // Tree* huff_tree = mktree();
+    if(build_huff_tree(&forest) == false)
+    {
+        printf("Couldn't build huff tree\n");
+        // rmtree(huff_tree);
+        rmforest(forest);
+        return 1;
+    }
 
-    // count the total # of bits in the file, minus the header
+    Tree* huff_tree = pick(forest);
+    if(huff_tree == NULL)
+    {
+        printf("Couldn't build huff tree\n");
+        rmforest(forest);
+    }
+
     Tree* walker = huff_tree;
     int bit;
     while ((bit = bread(input)) != EOF)
     {
         // we've found a letter
+        // FLAG
         if(walker->left == NULL && walker->right == NULL)
         {
-            // print found character
-            int printed = fprintf(output, "%c", walker->symbol);
-            
-            // end early if we couldn't print 1 character to file
-            if(printed != 1)
+            if(!fprintchar(output, walker->symbol))
             {
-                printf("Unable to write to %s\n", argv[2]);
-                rmtree(walker);
+                printf("Couldn't write to %s\n", argv[2]);
                 rmtree(huff_tree);
                 rmforest(forest);
                 return 1;
@@ -214,8 +185,18 @@ int main(int argc, char* argv[])
         else 
             walker = walker->right;
     }
-    printf("\n\n");
 
+    // one more character to write...the last character
+    if(!fprintchar(output, walker->symbol))
+    {
+        printf("Couldn't write to %s\n", argv[2]);
+        rmtree(walker);
+        // rmtree(huff_tree);
+        rmforest(forest);
+        return 1;
+    }
+
+    // free memory
     rmtree(huff_tree);
     rmforest(forest);
 
